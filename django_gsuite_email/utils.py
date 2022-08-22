@@ -34,4 +34,4 @@ def get_credentials_file():
 
 
 def check_ready():
-    return bool(get_credentials_file())
+    return hasattr(settings, 'GSUITE_CREDENTIALS_JSON') or bool(get_credentials_file())

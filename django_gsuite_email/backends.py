@@ -7,6 +7,8 @@ from django.core.mail.message import sanitize_address
 from google.auth import exceptions
 from google.oauth2 import service_account
 from googleapiclient.discovery import build
+import os
+import json
 
 from .utils import get_credentials_file
 
@@ -15,7 +17,10 @@ class GSuiteEmailBackend(BaseEmailBackend):
     def __init__(self, fail_silently=False, **kwargs):
 
         self.fail_silently = fail_silently
-        self.credentials = get_credentials_file()
+        if hasattr(settings, 'GSUITE_CREDENTIALS_JSON'):
+            self.credentials = json.loads(settings.GSUITE_CREDENTIALS_JSON)
+        else:
+            self.credentials = get_credentials_file()
         self.API_SCOPE = ['https://www.googleapis.com/auth/gmail.send', ]
         # to reopen connection with different delegation when from_email changes
         self.current_user = None
@@ -23,8 +28,12 @@ class GSuiteEmailBackend(BaseEmailBackend):
         self._lock = threading.RLock()
 
     def _delegate_user(self, user_id):
-        credentials = service_account.Credentials.from_service_account_file(
-            self.credentials, scopes=self.API_SCOPE)
+        if hasattr(settings, 'GSUITE_CREDENTIALS_JSON'):
+            credentials = service_account.Credentials.from_service_account_info(
+                self.credentials, scopes=self.API_SCOPE)
+        else:
+            credentials = service_account.Credentials.from_service_account_file(
+                self.credentials, scopes=self.API_SCOPE)
         credentials_delegated = credentials.with_subject(user_id)
         return credentials_delegated
 

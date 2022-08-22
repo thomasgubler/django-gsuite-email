@@ -42,6 +42,14 @@ GSUITE_CREDENTIALS_FILE="/path/to/credentials/file.json"
 ````
 > #### Note: `GSUITE_CREDENTIALS_FILE` in `settings.py` will take precedence over environment variable.
 
+Alternatively you can set the JSON string in a env variable and initialize `GSUITE_CREDENTIALS_JSON` in `settings.py`
+
+```
+from decouple import config
+GSUITE_CREDENTIALS_JSON = config("GSUITE_CREDENTIALS_JSON")
+```
+If this is set it will take precedence over `GSUITE_CREDENTIALS_FILE`
+
 #### 4. Send emails
 ```python
 from django.core.mail import send_mail
